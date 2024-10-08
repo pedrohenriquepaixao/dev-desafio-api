@@ -8,6 +8,12 @@ namespace DevDesafioMagvaBusZap.Service
     public class ApiService : IApiService
     {
         private readonly HttpClient _httpClient;
+        /// <summary>
+        /// Fixed challenge parameters
+        /// Status = unknown
+        /// Species = alien
+        /// Apareceram em mais de 1 episódio
+        /// </summary>
         private const string EndpointAndParams = "api/character?status=unknown&species=alien";
 
         public ApiService(HttpClient httpClient)
