@@ -1,5 +1,7 @@
+using DevDesafioMagvaBusZap.Models;
 using DevDesafioMagvaBusZap.Service;
 using DevDesafioMagvaBusZap.Service.Interface;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,10 +11,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 
-builder.Services.AddHttpClient<IApiService, ApiService>(client =>
+builder.Services.AddHttpClient<IApiService, ApiService>((serviceProvider, client) =>
 {
-    client.BaseAddress = new Uri("https://rickandmortyapi.com/");
+    var apiSettings = serviceProvider.GetRequiredService<IOptions<ApiSettings>>().Value;
+    client.BaseAddress = new Uri(apiSettings.BaseUrl);
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
