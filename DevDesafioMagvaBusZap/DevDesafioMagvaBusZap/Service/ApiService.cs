@@ -22,18 +22,23 @@ namespace DevDesafioMagvaBusZap.Service
         }
         public async Task<Result<List<Character>>> GetDataByRequestedParameters()
         {
-
-            var jsonResponse = await GetJsonResponse(EndpointAndParams);
-            var characters = DeserializeCharacters(jsonResponse);
-      
-            if (characters.IsFailure || !characters.Value.Any())
+            try
             {
-                return Result.Failure<List<Character>>(new Error("ApiService.GetCharacterAsync", $"Nenhum dado encontrado"));
+                var jsonResponse = await GetJsonResponse(EndpointAndParams);
+                var characters = DeserializeCharacters(jsonResponse);
+
+                if (characters.IsFailure || !characters.Value.Any())
+                {
+                    return Result.Failure<List<Character>>(new Error("ApiService.GetCharacterAsync", $"Nenhum dado encontrado"));
+                }
+
+                var characterAppearsInMoreThanOneEpisode = characters.Value.Where(character => character.Episode.Count > 1).ToList();
+                return Result.Success(characterAppearsInMoreThanOneEpisode);
             }
-
-            var characterAppearsInMoreThanOneEpisode = characters.Value.Where(character => character.Episode.Count > 1).ToList();
-            return Result.Success(characterAppearsInMoreThanOneEpisode);
-
+            catch (HttpRequestException ex)
+            {
+                return Result.Failure<List<Character>>(new Error("ApiService.GetDataByRequestedParameters", ex.Message));
+            }
         }
 
         private async Task<string> GetJsonResponse(string endpoint)
